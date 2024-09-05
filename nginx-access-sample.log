@@ -3,11 +3,11 @@
 192.168.1.1 - - [01/Sep/2024:13:55:03 +0200] "GET /contact.html HTTP/1.1" 200 988 "-" "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)"
 10.0.0.1 - - [01/Sep/2024:13:55:04 +0200] "GET / HTTP/1.1" 200 1024 "-" "Mozilla/5.0 (iPhone; CPU iPhone OS 11_0 like Mac OS X) AppleWebKit/604.1.38 (KHTML, like Gecko) Version/11.0 Mobile/15A372 Safari/604.1"
 192.168.1.3 - - [01/Sep/2024:13:55:05 +0200] "GET /about.html HTTP/1.1" 200 2048 "-" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_6) AppleWebKit/603.3.8 (KHTML, like Gecko) Version/10.1.2 Safari/603.3.8"
-10.0.0.1 - - [01/Sep/2024:13:55:06 +0200] "GET /products.html HTTP/1.1" 200 984 "-" "Mozilla/5.0 (iPhone; CPU iPhone OS 11_0 like Mac OS X) AppleWebKit/604.1.38 (KHTML, like Gecko) Version/11.0 Mobile/15A372 Safari/604.1"
-101.132.43.9 - - [01/Sep/2024:13:55:07 +0200] "GET /services HTTP/1.1" 404 102 "-" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36"
-101.127.250.66 - - [01/Sep/2024:13:55:08 +0200] "GET / HTTP/1.1" 200 1561 "-" "Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/64.0.3282.137 Mobile Safari/537.36"
+195.112.206.227 - - [01/Sep/2024:13:55:06 +0200] "GET /products.html HTTP/1.1" 200 984 "-" "Mozilla/5.0 (iPhone; CPU iPhone OS 11_0 like Mac OS X) AppleWebKit/604.1.38 (KHTML, like Gecko) Version/11.0 Mobile/15A372 Safari/604.1"
+195.112.206.227 - - [01/Sep/2024:13:55:07 +0200] "GET /services HTTP/1.1" 404 102 "-" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36"
+91.200.40.43 - - [01/Sep/2024:13:55:08 +0200] "GET / HTTP/1.1" 200 1561 "-" "Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/64.0.3282.137 Mobile Safari/537.36"
 192.168.1.5 - - [01/Sep/2024:13:55:09 +0200] "GET / HTTP/1.1" 200 1024 "-" "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)"
 101.100.200.57 - - [01/Sep/2024:13:55:10 +0200] "GET /news.html HTTP/1.1" 200 2048 "-" "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)"
 192.168.1.3 - - [01/Sep/2024:13:55:11 +0200] "GET /blog/post/1 HTTP/1.1" 200 2560 "-" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_6) AppleWebKit/603.3.8 (KHTML, like Gecko) Version/10.1.2 Safari/603.3.8"
 101.100.200.57 - - [01/Sep/2024:13:55:12 +0200] "GET /profile HTTP/1.1" 200 512 "-" "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)"
-101.188.5.140 - - [01/Sep/2024:13:55:13 +0200] "GET /cart HTTP/1.1" 200 1112 "-" "Mozilla/5.0 (iPhone; CPU iPhone OS 11_0 like Mac OS X) AppleWebKit/604.1.38 (KHTML, like Gecko) Version/11.0 Mobile/15A372 Safari/604.1 
+101.126.22.181 - - [01/Sep/2024:13:55:13 +0200] "GET /cart HTTP/1.1" 200 1112 "-" "Mozilla/5.0 (iPhone; CPU iPhone OS 11_0 like Mac OS X) AppleWebKit/604.1.38 (KHTML, like Gecko) Version/11.0 Mobile/15A372 Safari/604.1 
