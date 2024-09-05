@@ -15,7 +15,7 @@ MAX_LINES=100000
 
 # Check required arguments
 if [ -z "$LOG_FILE" ] || [ -z "$API_KEY" ]; then
-  show_usage
+  echo "Usage: LOG_FILE=/path/to/log/file.log API_KEY=your-api-key ./crowdsec-efficiency-tester.sh"
 fi
 
 # Validate token is not empty
