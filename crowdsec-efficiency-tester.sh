@@ -62,12 +62,14 @@ rm "$IPS_FILE"
 echo " ✅"
 
 ### Step 4: Efficiency calculations
-IP_EFFICIENCY=$(bc <<< "scale=2; $BLOCKLIST_HIT_COUNT / $TOTAL_IPS * 100")
+IP_EFFICIENCY=$(bc <<< "scale=4; 4 / 223 * 100")
 REQUEST_EFFICIENCY=$(bc <<< "scale=2; $BLOCKLIST_HIT_REQUESTS / $TOTAL_REQUESTS * 100")
+FORMATTED_IP_EFFICIENCY=$(printf "%.2f" $IP_EFFICIENCY)
+FORMATTED_REQUEST_EFFICIENCY=$(printf "%.2f" $REQUEST_EFFICIENCY)
 
 ### Step 5: Display summary
 echo "
-Blocklist hits (IPs)       : $IP_EFFICIENCY% ($BLOCKLIST_HIT_COUNT/$TOTAL_IPS)
-Blocklist hits (Requests)  : $REQUEST_EFFICIENCY% ($BLOCKLIST_HIT_REQUESTS/$TOTAL_REQUESTS)"
+Blocklist hits (IPs)       : $FORMATTED_IP_EFFICIENCY% ($BLOCKLIST_HIT_COUNT/$TOTAL_IPS)
+Blocklist hits (Requests)  : $FORMATTED_REQUEST_EFFICIENCY% ($BLOCKLIST_HIT_REQUESTS/$TOTAL_REQUESTS)"
 
 show_end
