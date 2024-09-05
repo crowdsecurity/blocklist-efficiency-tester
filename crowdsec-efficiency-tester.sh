@@ -10,37 +10,16 @@ If you have any questions or need help, please visit https://docs.crowdsec.net/u
 "
 }
 
-# Usage display function
-show_usage() {
-  echo "Usage: $0 --log-file <log_file> --key <api_key> [-max-lines <max_lines>]"
-  echo "  --log-file : Path to the log file (nginx access log, Apache access log, etc.)"
-  echo "  --token : Token in the format 'USERNAME:PASSWORD:INTEGRATION_ID'"
-  echo "  --max-lines : (Optional) Maximum number of IPs to analyze (default: 100000)"
-  show_end
-  exit 1
-}
-
 # Default value for max lines
 MAX_LINES=100000
 
-# Parse arguments using long options
-while [[ "$#" -gt 0 ]]; do
-  case $1 in
-    --log-file) LOG_FILE="$2"; shift ;;
-    --token) TOKEN="$2"; shift ;;
-    --max-lines) MAX_LINES="$2"; shift ;;
-    *) echo "Unknown parameter: $1"; show_usage ;;
-  esac
-  shift
-done
-
 # Check required arguments
-if [ -z "$LOG_FILE" ] || [ -z "$TOKEN" ]; then
+if [ -z "$LOG_FILE" ] || [ -z "$API_KEY" ]; then
   show_usage
 fi
 
-# Validate token format
-if [ [ -z "$API_KEY" ] ]; then
+# Validate token is not empty
+if [ -z "$API_KEY" ]; then
   echo "Error: Api Key required"
   exit 1
 fi
