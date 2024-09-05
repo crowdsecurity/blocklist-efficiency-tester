@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# Usage:
+# API_KEY=INSERT_YOUR_KEY LOG_FILE=./nginx-access-sample.log /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/crowdsecurity/blocklist-efficiency-tester/main/crowdsec-efficiency-tester.sh)"
+
 echo "
 ✨✨✨ CrowdSec efficiency tester ✨✨✨
 "
