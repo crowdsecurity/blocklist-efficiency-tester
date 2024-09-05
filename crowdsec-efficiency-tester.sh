@@ -53,7 +53,7 @@ echo " ✅"
 
 ### Step 2: Download blocklist
 echo -n "Downloading blocklist..."
-BLOCKLIST_CONTENT=$(curl -X 'GET' \
+BLOCKLIST_CONTENT=$(curl -X 'GET' -s \
   'https://admin.api.crowdsec.net/v1/blocklists/65ea27cc1d712714ef096abc/download' \
   -H 'accept: text/plain' \
   -H "x-api-key: $API_KEY")
