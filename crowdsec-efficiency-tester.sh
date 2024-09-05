@@ -12,7 +12,7 @@ If you have any questions or need help, please visit https://docs.crowdsec.net/u
 
 # Usage display function
 show_usage() {
-  echo "Usage: $0 -f <log_file> -t <username:password:integration_id> [-m <max_lines>]"
+  echo "Usage: $0 --log-file <log_file> --key <api_key> [-max-lines <max_lines>]"
   echo "  --log-file : Path to the log file (nginx access log, Apache access log, etc.)"
   echo "  --token : Token in the format 'USERNAME:PASSWORD:INTEGRATION_ID'"
   echo "  --max-lines : (Optional) Maximum number of IPs to analyze (default: 100000)"
@@ -39,12 +39,9 @@ if [ -z "$LOG_FILE" ] || [ -z "$TOKEN" ]; then
   show_usage
 fi
 
-# Split token into username, password, and integration ID
-IFS=':' read -r USERNAME PASSWORD INTEGRATION_ID <<< "$TOKEN"
-
 # Validate token format
-if [ -z "$USERNAME" ] || [ -z "$PASSWORD" ] || [ -z "$INTEGRATION_ID" ]; then
-  echo "Error: Token must be in the format 'USERNAME:PASSWORD:INTEGRATION_ID'."
+if [ [ -z "$API_KEY" ] ]; then
+  echo "Error: Api Key required"
   exit 1
 fi
 
@@ -56,8 +53,10 @@ echo " ✅"
 
 ### Step 2: Download blocklist
 echo -n "Downloading blocklist..."
-BLOCKLIST_URL="https://${USERNAME}:${PASSWORD}@admin.api.crowdsec.net/v1/integrations/${INTEGRATION_ID}/content"
-BLOCKLIST_CONTENT=$(curl -s "$BLOCKLIST_URL")
+BLOCKLIST_CONTENT=$(curl -X 'GET' \
+  'https://admin.api.crowdsec.net/v1/blocklists/65ea27cc1d712714ef096abc/download' \
+  -H 'accept: text/plain' \
+  -H "x-api-key: $API_KEY")
 echo " ✅"
 
 ### Step 3: Analyze each IP against the blocklist
