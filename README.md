@@ -17,7 +17,8 @@ The crowdsec-efficienty-tester.sh bash script requires:
 ```
 
 ### Log files that you can use
-> Any file that contains the source IP for a given request
+> ℹ️ Script currently supports logs formats where the **IP address** is the **first element** in the log line.<br>
+> Example of logs you might want to evaluate:
 - Auth logs
 - NGINX logs
 - HAProxy logs
