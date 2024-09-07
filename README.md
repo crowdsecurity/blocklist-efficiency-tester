@@ -1,8 +1,8 @@
 ![CrowdSec Logo](https://raw.githubusercontent.com/crowdsecurity/blocklist-efficiency-tester/main/crowdsec_logo.png)
 
 # CrowdSec Blocklist efficiency tester
-> Fast evaluation of ingress traffic mass-attacks
-> Demonstration of proactive value of the CrowdSec Intelligence Blocklist.
+> Fast evaluation of ingress traffic mass-attacks.<br>
+> Demonstrating the proactive value of the [CrowdSec Intelligence Blocklist](https://app.crowdsec.net/blocklists/65ea27cc1d712714ef096abc).
 
 ## Usage
 ### Requierements
