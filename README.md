@@ -62,3 +62,9 @@ IP Address           | Count
 - If the log file is not found, the script will not work. Ensure you provide a valid path.
 - If the API key is incorrect the blocklist won't be downloaded. Note that API keys may expires depending on creation preferences
 - IPs in your log files must be ingress source IPs (be sure not to have CDN IPs)
+
+## More info about CrowdSec
+- [Blocklists](https://www.crowdsec.net/blocklists)
+- [Security Engine](https://www.crowdsec.net/security-engine)
+- [CTI](https://www.crowdsec.net/cyber-threat-intelligence)
+- [Integrations](https://www.crowdsec.net/integrations)
