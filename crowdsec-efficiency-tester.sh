@@ -9,14 +9,14 @@ echo "
 
 show_end() {
   echo "
-Typical efficiency observed is 20 to 50%.
+Typical efficiency observed for the CrowdSec Intelligence Blocklist is 20 to 50%.
 If you have less than 10% efficiency, you may want to check the following:
 * The IPs in your logs are from ingress on an exposed service (website, api, ssh, etc.)
 * The IPs in your logs are not from a CDN but properly x-forwarded-for
 
 If you want to check what CrowdSec knows about an attacker IP visit https://app.crowdsec.net/cti/
 
-If you have any questions or need help, please visit https://docs.crowdsec.net/u/troubleshooting/intro/ or join our community on https://crowdsec.net/community/
+If you have any questions about our blocklists API, please visit https://doc.crowdsec.net/u/service_api/getting_started or join our community on https://crowdsec.net/community/
 "
 }
 
