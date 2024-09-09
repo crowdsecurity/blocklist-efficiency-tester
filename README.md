@@ -60,6 +60,7 @@ IP Address           | Count
 ```
 
 ## Troubleshooting
+- This script can take a few minutes. Average 1-2 minutes per 20k lines of log
 - If the log file is not found, the script will not work. Ensure you provide a valid path.
 - If the API key is incorrect the blocklist won't be downloaded. Note that API keys may expires depending on creation preferences
 - IPs in your log files must be ingress source IPs (be sure not to have CDN IPs)
