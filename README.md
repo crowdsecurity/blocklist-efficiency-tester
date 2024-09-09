@@ -8,8 +8,8 @@
 ### Requierements
 
 The crowdsec-efficienty-tester.sh bash script requires:
-- A CrowdSec Service API Key
-- A log file from incoming traffic or at least a file containing IPs that hit your server in the past 24-48hours
+- A **CrowdSec Service API Key**
+- A **log file from incoming traffic** or at least a file containing IPs that hit your server in the past 24-48hours
 - The curl command must be available on your system (to download the list)
 - Run the script like so:
 ```
