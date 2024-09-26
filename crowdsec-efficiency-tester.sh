@@ -59,6 +59,12 @@ BLOCKLIST_CONTENT=$(curl -X 'GET' -s \
   'https://admin.api.crowdsec.net/v1/blocklists/65ea27cc1d712714ef096abc/download' \
   -H 'accept: text/plain' \
   -H "x-api-key: $API_KEY")
+# If unable to DL or {"message":"Forbidden"} then exit with error
+if [ -z "$BLOCKLIST_CONTENT" ] || [ "$BLOCKLIST_CONTENT" == '{"message":"Forbidden"}' ]; then
+  echo " ❌"
+  echo "Error: Unable to download the blocklist. Please check your API key and try again."
+  exit 1
+fi
 echo " ✅"
 
 ### Step 3: Analyzing parsed IPs against the blocklist
