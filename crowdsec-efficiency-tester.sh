@@ -38,20 +38,23 @@ if [ -z "$API_KEY" ]; then
   exit 1
 fi
 
-# Validate LOG_FILE has been provided
-if [ -z "$LOG_FILE" ]; then
-  read -p "Path to your log file: " LOG_FILE
-fi
-if [ -z "$LOG_FILE" ]; then
-  echo "Error: log file is required"
-  exit 1
-fi
-
 ### Step 1: Extract and count IPs from the log file
-echo -n "Extracting and counting IP addresses from logs..."
-PARSED_IPS_FILE="ips-from-logs.txt"
-awk '{print $1}' "$LOG_FILE" | sort | uniq -c | sort -nr | head -n $MAX_LINES | awk '{print $2","$1}' > "$PARSED_IPS_FILE"
-echo " ✅"
+  # Validate PARSED_IPS_FILE or LOG_FILE has been provided
+if [ -z "$PARSED_IPS_FILE" ]; then
+  if [ -z "$LOG_FILE" ]; then
+    read -p "Path to your log file: " LOG_FILE
+  fi
+  if [ -z "$LOG_FILE" ]; then
+    echo "Error: Either LOG_FILE or PARSED_IPS_FILE must be provided"
+    exit 1
+  fi
+  echo -n "Extracting and counting IP addresses from logs..."
+  PARSED_IPS_FILE="ips-from-logs.txt"
+  awk '{print $1}' "$LOG_FILE" | sort | uniq -c | sort -nr | head -n $MAX_LINES | awk '{print $2","$1}' > "$PARSED_IPS_FILE"
+  echo " ✅"
+else
+  echo "Using pre-parsed IPs file: $PARSED_IPS_FILE"
+fi
 
 ### Step 2: Download blocklist
 echo -n "Downloading blocklist..."
@@ -90,7 +93,7 @@ while IFS=, read -r ip count; do
 done < "$PARSED_IPS_FILE"
 
 # Remove the temporary IPs file
-rm "$PARSED_IPS_FILE"
+#rm "$PARSED_IPS_FILE"
 echo " ✅"
 
 ### Step 4: Efficiency calculations
