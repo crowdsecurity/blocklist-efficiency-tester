@@ -50,6 +50,7 @@ if [ -z "$PARSED_IPS_FILE" ]; then
   fi
   echo -n "Extracting and counting IP addresses from logs..."
   PARSED_IPS_FILE="ips-from-logs.txt"
+  CLEAR_PARSED_IPS_FILE="true"
   awk '{print $1}' "$LOG_FILE" | sort | uniq -c | sort -nr | head -n $MAX_LINES | awk '{print $2","$1}' > "$PARSED_IPS_FILE"
   echo " ✅"
 else
@@ -71,29 +72,35 @@ fi
 echo " ✅"
 
 ### Step 3: Analyzing parsed IPs against the blocklist
+# Build an associative array from the blocklist for fast lookup
+declare -A blocklist_ips
+while IFS= read -r ip; do
+  blocklist_ips["$ip"]=1
+done <<< "$BLOCKLIST_CONTENT"
 
-# Initialize counters for report
+# Initialize counters for the report
 TOTAL_DISTINCT_IPS_IN_LOGS=0
 TOTAL_REQUESTS_IN_LOGS=0
 BLOCKLIST_IP_HITS=0
 BLOCKLIST_REQUESTS_HITS=0
 BAD_IPS=""
-# Count blocklist hits
-echo -n "Analyzing IPs against the blocklist..."
+
+# Process the pre-parsed IP file line by line
 while IFS=, read -r ip count; do
   TOTAL_REQUESTS_IN_LOGS=$((TOTAL_REQUESTS_IN_LOGS + count))
   TOTAL_DISTINCT_IPS_IN_LOGS=$((TOTAL_DISTINCT_IPS_IN_LOGS + 1))
-  if echo "$BLOCKLIST_CONTENT" | grep -qx "$ip"; then
+  
+  # Instead of grepping, check if the IP exists in the associative array
+  if [[ ${blocklist_ips[$ip]} ]]; then
     BLOCKLIST_IP_HITS=$((BLOCKLIST_IP_HITS + 1))
     BLOCKLIST_REQUESTS_HITS=$((BLOCKLIST_REQUESTS_HITS + count))
-
-     # Concatenate the IP and count to the HIT_IPS string
-    BAD_IPS="${BAD_IPS}${ip}, ${count}\n"
+    BAD_IPS+="${ip}, ${count}\n"
   fi
 done < "$PARSED_IPS_FILE"
 
-# Remove the temporary IPs file
-#rm "$PARSED_IPS_FILE"
+if [ -n "$CLEAR_PARSED_IPS_FILE" ]; then
+  rm "$PARSED_IPS_FILE"
+fi
 echo " ✅"
 
 ### Step 4: Efficiency calculations
