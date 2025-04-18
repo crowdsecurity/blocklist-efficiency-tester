@@ -57,25 +57,47 @@ else
   echo "Using pre-parsed IPs file: $PARSED_IPS_FILE"
 fi
 
+# Default blocklist ID(s)
+DEFAULT_BLOCKLIST_ID="65ea27cc1d712714ef096abc"
+BLOCKLIST_ID="${BLOCKLIST_ID:-$DEFAULT_BLOCKLIST_ID}"
+
 ### Step 2: Download blocklist
 echo -n "Downloading blocklist..."
-BLOCKLIST_CONTENT=$(curl -X 'GET' -s \
-  'https://admin.api.crowdsec.net/v1/blocklists/65ea27cc1d712714ef096abc/download' \
-  -H 'accept: text/plain' \
-  -H "x-api-key: $API_KEY")
-# If unable to DL or {"message":"Forbidden"} then exit with error
-if [ -z "$BLOCKLIST_CONTENT" ] || [ "$BLOCKLIST_CONTENT" == '{"message":"Forbidden"}' ]; then
-  echo " ❌"
-  echo "Error: Unable to download the blocklist. Please check your API key and try again."
-  exit 1
-fi
-echo " ✅"
+# BLOCKLIST_CONTENT=$(curl -X 'GET' -s \
+#   'https://admin.api.crowdsec.net/v1/blocklists/65ea27cc1d712714ef096abc/download' \
+#   -H 'accept: text/plain' \
+#   -H "x-api-key: $API_KEY")
+# # If unable to DL or {"message":"Forbidden"} then exit with error
+# if [ -z "$BLOCKLIST_CONTENT" ] || [ "$BLOCKLIST_CONTENT" == '{"message":"Forbidden"}' ]; then
+#   echo " ❌"
+#   echo "Error: Unable to download the blocklist. Please check your API key and try again."
+#   exit 1
+# fi
+# echo " ✅"
+BLOCKLIST_CONTENT=""
+IFS=',' read -ra BLOCKLIST_IDS <<< "$BLOCKLIST_ID"
+for id in "${BLOCKLIST_IDS[@]}"; do
+  echo -n "Fetching blocklist ID $id..."
+  CONTENT=$(curl -X 'GET' -s \
+    "https://admin.api.crowdsec.net/v1/blocklists/${id}/download" \
+    -H 'accept: text/plain' \
+    -H "x-api-key: $API_KEY")
+  if [ -z "$CONTENT" ] || [ "$CONTENT" == '{"message":"Forbidden"}' ]; then
+    echo " ❌"
+    echo "Error: Unable to download blocklist ID $id. Please check your API key or ID."
+    exit 1
+  fi
+  BLOCKLIST_CONTENT="${BLOCKLIST_CONTENT}"$'\n'"${CONTENT}"
+  echo " ✅"
+done
 
 ### Step 3: Analyzing parsed IPs against the blocklist
 # Build an associative array from the blocklist for fast lookup
 declare -A blocklist_ips
 while IFS= read -r ip; do
-  blocklist_ips["$ip"]=1
+  if [[ -n "$ip" ]]; then
+    blocklist_ips["$ip"]=1
+  fi
 done <<< "$BLOCKLIST_CONTENT"
 
 # Initialize counters for the report
