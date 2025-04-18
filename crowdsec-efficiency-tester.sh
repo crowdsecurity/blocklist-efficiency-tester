@@ -2,6 +2,34 @@
 
 # Usage:
 # API_KEY=INSERT_YOUR_KEY LOG_FILE=./nginx-access-sample.log /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/crowdsecurity/blocklist-efficiency-tester/main/crowdsec-efficiency-tester.sh)"
+#
+# Alternative usage with custom blocklist URL and basic auth:
+# BLOCKLIST_URL=https://example.com/blocklist BLOCKLIST_USERNAME=user BLOCKLIST_PASSWORD=pass LOG_FILE=./nginx-access-sample.log ./crowdsec-efficiency-tester.sh
+#
+# You can also set BLOCKLIST_URL, BLOCKLIST_USERNAME, and BLOCKLIST_PASSWORD in a .env file:
+# BLOCKLIST_URL=https://example.com/blocklist
+# BLOCKLIST_USERNAME=user
+# BLOCKLIST_PASSWORD=pass
+#
+# Note: Parameters passed directly take priority over .env file values
+#
+# Flags:
+# -f : Force refresh of blocklist (ignore cache)
+
+# Function to fetch blocklist with basic auth support
+fetch_blocklist() {
+  local url="$1"
+  local username="$2"
+  local password="$3"
+
+  if [ -n "$username" ] && [ -n "$password" ]; then
+    # Use basic auth
+    curl -s -u "${username}:${password}" "$url"
+  else
+    # No auth
+    curl -s "$url"
+  fi
+}
 
 echo "
 ✨✨✨ CrowdSec efficiency tester ✨✨✨
@@ -24,17 +52,26 @@ If you have any questions about our blocklists API, please visit https://doc.cro
 MAX_LINES=100000
 TOP_ATTACKERS_DISPLAY=10
 
-# Check required arguments
-if [ -z "$LOG_FILE" ] || [ -z "$API_KEY" ]; then
-  echo "Usage: LOG_FILE=/path/to/log/file.log API_KEY=your-api-key ./crowdsec-efficiency-tester.sh"
+# Load .env file early if it exists (to check for BLOCKLIST_URL)
+if [ -f ".env" ]; then
+  set -a
+  source .env
+  set +a
 fi
 
-# Validate API Key has been provided
-if [ -z "$API_KEY" ]; then
-  read -p "Enter your API key: " API_KEY
+# Read arguments
+LOG_FILE="$1"
+
+# Check required arguments
+if [ -z "$LOG_FILE" ] || [ -z "$BLOCKLIST_URL" ]; then
+  echo "Usage: ./crowdsec-efficiency-tester.sh /path/to/log/file.log"
+  echo "   Or: BLOCKLIST_URL=https://... [BLOCKLIST_USERNAME=user] [BLOCKLIST_PASSWORD=pass] ./crowdsec-efficiency-tester.sh /path/to/log/file.log"
+  echo "---"
 fi
-if [ -z "$API_KEY" ]; then
-  echo "Error: Api Key required"
+
+# Validate API Key has been provided (only if not using BLOCKLIST_URL)
+if [ -z "$BLOCKLIST_URL" ]; then
+  echo "Error: BLOCKLIST_URL must be provided"
   exit 1
 fi
 
@@ -55,41 +92,81 @@ if [ -z "$PARSED_IPS_FILE" ]; then
   echo " ✅"
 else
   echo "Using pre-parsed IPs file: $PARSED_IPS_FILE"
+  echo "cleaning bad return carriage characters from $PARSED_IPS_FILE"
+  sed -i 's/\r$//' "$PARSED_IPS_FILE"
 fi
-
-# Default blocklist ID(s)
-DEFAULT_BLOCKLIST_ID="65ea27cc1d712714ef096abc"
-BLOCKLIST_ID="${BLOCKLIST_ID:-$DEFAULT_BLOCKLIST_ID}"
 
 ### Step 2: Download blocklist
 echo -n "Downloading blocklist..."
-# BLOCKLIST_CONTENT=$(curl -X 'GET' -s \
-#   'https://admin.api.crowdsec.net/v1/blocklists/65ea27cc1d712714ef096abc/download' \
-#   -H 'accept: text/plain' \
-#   -H "x-api-key: $API_KEY")
-# # If unable to DL or {"message":"Forbidden"} then exit with error
-# if [ -z "$BLOCKLIST_CONTENT" ] || [ "$BLOCKLIST_CONTENT" == '{"message":"Forbidden"}' ]; then
-#   echo " ❌"
-#   echo "Error: Unable to download the blocklist. Please check your API key and try again."
-#   exit 1
-# fi
-# echo " ✅"
 BLOCKLIST_CONTENT=""
-IFS=',' read -ra BLOCKLIST_IDS <<< "$BLOCKLIST_ID"
-for id in "${BLOCKLIST_IDS[@]}"; do
-  echo -n "Fetching blocklist ID $id..."
-  CONTENT=$(curl -X 'GET' -s \
-    "https://admin.api.crowdsec.net/v1/blocklists/${id}/download" \
-    -H 'accept: text/plain' \
-    -H "x-api-key: $API_KEY")
-  if [ -z "$CONTENT" ] || [ "$CONTENT" == '{"message":"Forbidden"}' ]; then
-    echo " ❌"
-    echo "Error: Unable to download blocklist ID $id. Please check your API key or ID."
-    exit 1
+CACHE_FILE=".cache"
+BLOCKLIST_CACHE_FILE="latestBlocklistContent.ips"
+FORCE_REFRESH=false
+
+# Check for -f flag for force refresh
+if [[ "$*" == *"-f"* ]]; then
+  FORCE_REFRESH=true
+  echo "(forced refresh) "
+fi
+
+# Check if BLOCKLIST_URL is provided (new method with basic auth)
+if [ -n "$BLOCKLIST_URL" ]; then
+  # Calculate MD5 of the URL
+  URL_MD5=$(echo -n "$BLOCKLIST_URL" | md5sum | awk '{print $1}')
+  CURRENT_TIME=$(date +%s)
+  USE_CACHE=false
+
+  # Check if cache exists and is valid
+  if [ -f "$CACHE_FILE" ] && [ -f "$BLOCKLIST_CACHE_FILE" ] && [ "$FORCE_REFRESH" = false ]; then
+    # Read cache file
+    CACHED_URL_MD5=$(grep "^URL_MD5=" "$CACHE_FILE" | cut -d'=' -f2)
+    CACHED_TIMESTAMP=$(grep "^TIMESTAMP=" "$CACHE_FILE" | cut -d'=' -f2)
+
+    # Check if URL matches and cache is less than 10 minutes old (600 seconds)
+    if [ "$CACHED_URL_MD5" = "$URL_MD5" ]; then
+      TIME_DIFF=$((CURRENT_TIME - CACHED_TIMESTAMP))
+      if [ $TIME_DIFF -lt 600 ]; then
+        USE_CACHE=true
+        echo -n "Using cached blocklist ($(($TIME_DIFF / 60))m old)..."
+      fi
+    fi
   fi
-  BLOCKLIST_CONTENT="${BLOCKLIST_CONTENT}"$'\n'"${CONTENT}"
-  echo " ✅"
-done
+
+  if [ "$USE_CACHE" = true ]; then
+    # Load from cache
+    CONTENT=$(cat "$BLOCKLIST_CACHE_FILE")
+    IP_COUNT=$(echo "$CONTENT" | grep -v '^$' | sort -u | wc -l | xargs)
+    echo " ✅ ($IP_COUNT IPs)"
+  else
+    # Fetch fresh content
+    echo -n "Fetching blocklist from custom URL..."
+
+    # Use environment variables as defaults, but allow override
+    CONTENT=$(fetch_blocklist "$BLOCKLIST_URL" "$BLOCKLIST_USERNAME" "$BLOCKLIST_PASSWORD")
+
+    if [ -z "$CONTENT" ] || [ "$CONTENT" == '{"message":"Forbidden"}' ] || [[ "$CONTENT" == *"error"* ]]; then
+      echo " ❌"
+      echo "Error: Unable to download blocklist from $BLOCKLIST_URL"
+      exit 1
+    fi
+
+    IP_COUNT=$(echo "$CONTENT" | grep -v '^$' | sort -u | wc -l | xargs)
+    echo " ✅ ($IP_COUNT IPs)"
+
+    # Save to cache
+    echo "$CONTENT" > "$BLOCKLIST_CACHE_FILE"
+    cat > "$CACHE_FILE" << EOF
+URL_MD5=$URL_MD5
+TIMESTAMP=$CURRENT_TIME
+URL=$BLOCKLIST_URL
+EOF
+  fi
+
+  BLOCKLIST_CONTENT="$CONTENT"
+fi
+
+# Ensure the blocklist content unicity
+BLOCKLIST_CONTENT=$(echo "$BLOCKLIST_CONTENT" | sort -u | grep -v '^$')
 
 ### Step 3: Analyzing parsed IPs against the blocklist
 # Build an associative array from the blocklist for fast lookup
@@ -121,7 +198,8 @@ while IFS=, read -r ip count; do
 done < "$PARSED_IPS_FILE"
 
 if [ -n "$CLEAR_PARSED_IPS_FILE" ]; then
-  rm "$PARSED_IPS_FILE"
+  echo "Cleaning up temporary parsed IPs file..."
+  # rm "$PARSED_IPS_FILE"
 fi
 echo " ✅"
 
