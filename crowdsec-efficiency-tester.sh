@@ -55,6 +55,8 @@ if [ -z "$PARSED_IPS_FILE" ]; then
   echo " ✅"
 else
   echo "Using pre-parsed IPs file: $PARSED_IPS_FILE"
+  echo "cleaning bad return carriage characters from $PARSED_IPS_FILE"
+  sed -i 's/\r$//' "$PARSED_IPS_FILE"
 fi
 
 # Default blocklist ID(s)
@@ -63,17 +65,6 @@ BLOCKLIST_ID="${BLOCKLIST_ID:-$DEFAULT_BLOCKLIST_ID}"
 
 ### Step 2: Download blocklist
 echo -n "Downloading blocklist..."
-# BLOCKLIST_CONTENT=$(curl -X 'GET' -s \
-#   'https://admin.api.crowdsec.net/v1/blocklists/65ea27cc1d712714ef096abc/download' \
-#   -H 'accept: text/plain' \
-#   -H "x-api-key: $API_KEY")
-# # If unable to DL or {"message":"Forbidden"} then exit with error
-# if [ -z "$BLOCKLIST_CONTENT" ] || [ "$BLOCKLIST_CONTENT" == '{"message":"Forbidden"}' ]; then
-#   echo " ❌"
-#   echo "Error: Unable to download the blocklist. Please check your API key and try again."
-#   exit 1
-# fi
-# echo " ✅"
 BLOCKLIST_CONTENT=""
 IFS=',' read -ra BLOCKLIST_IDS <<< "$BLOCKLIST_ID"
 for id in "${BLOCKLIST_IDS[@]}"; do
