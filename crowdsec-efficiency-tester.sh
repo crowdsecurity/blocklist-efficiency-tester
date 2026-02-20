@@ -1,21 +1,5 @@
 #!/bin/bash
 
-# Usage:
-# API_KEY=INSERT_YOUR_KEY LOG_FILE=./nginx-access-sample.log /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/crowdsecurity/blocklist-efficiency-tester/main/crowdsec-efficiency-tester.sh)"
-#
-# Alternative usage with custom blocklist URL and basic auth:
-# BLOCKLIST_URL=https://example.com/blocklist BLOCKLIST_USERNAME=user BLOCKLIST_PASSWORD=pass LOG_FILE=./nginx-access-sample.log ./crowdsec-efficiency-tester.sh
-#
-# You can also set BLOCKLIST_URL, BLOCKLIST_USERNAME, and BLOCKLIST_PASSWORD in a .env file:
-# BLOCKLIST_URL=https://example.com/blocklist
-# BLOCKLIST_USERNAME=user
-# BLOCKLIST_PASSWORD=pass
-#
-# Note: Parameters passed directly take priority over .env file values
-#
-# Flags:
-# -f : Force refresh of blocklist (ignore cache)
-
 # Function to fetch blocklist with basic auth support
 fetch_blocklist() {
   local url="$1"
