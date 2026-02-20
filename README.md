@@ -2,19 +2,65 @@
 
 # CrowdSec Blocklist efficiency tester
 > Fast evaluation of ingress traffic mass-attacks.<br>
-> Demonstrating the proactive value of the [CrowdSec Intelligence Blocklist](https://app.crowdsec.net/blocklists/65ea27cc1d712714ef096abc).
+> Demonstrating the proactive value your [Blocklist as a Service integration](https://doc.crowdsec.net/u/integrations/intro)  
+> We recommend a [Raw IP list integration](https://doc.crowdsec.net/u/integrations/rawiplist).
 
-## Usage
-### Requierements
+## Requirements
 
-The crowdsec-efficienty-tester.sh bash script requires:
-- A **CrowdSec Service API Key**
+The crowdsec-efficiency-tester.sh bash script requires:
+  - **CrowdSec Blocklist as a Service Endpoint** ([Raw IP list mode](https://doc.crowdsec.net/u/integrations/rawiplist))
 - A **log file from incoming traffic** or at least a file containing IPs that hit your server in the past 24-48hours
 - The curl command must be available on your system (to download the list)
-- Run the script like so:
+
+## Usage
+
+### ENV SETUP: Optionnal
+
+If you plan to test multiple log files against the content of your Blocklist Integration content it's convenient to create a `.env` file.  
+
+Copy `.env.example`:
+```bash  
+cp .env.example .env
 ```
-  LOG_FILE=/path/to/log/file.log API_KEY=your-api-key ./crowdsec-efficiency-tester.sh
+
+Then uncomment and replace the following values with your endpoint's credentials
+```bash
+BLOCKLIST_URL=<integration_url>
+BLOCKLIST_USERNAME=your_username
+BLOCKLIST_PASSWORD=your_password
 ```
+
+> You can specify only BLOCKLIST_URL if using the `https://username:password@url` format  
+> Hence you can pull from anywhere
+
+
+### Running the evaluation
+
+#### Getting your credentials:
+1. Go to the [CrowdSec Console](https://app.crowdsec.net/)
+2. Navigate to **Integrations** > **Add Integration**
+3. Select **"Raw IP list"** integration
+4. Copy your **integration ID**, **username**, and **password**
+
+#### Running with .env file:
+
+```bash
+./crowdsec-efficiency-tester.sh /path/to/log/file.log
+```
+
+#### Overriding your .env you can run:
+
+```bash
+BLOCKLIST_URL=https://admin.api.crowdsec.net/v1/integrations/YOUR_INTEGRATION_ID/content \
+BLOCKLIST_USERNAME=your_username \
+BLOCKLIST_PASSWORD=your_password \
+./crowdsec-efficiency-tester.sh /path/to/log/file.log
+```
+
+#### Cache and Performance:
+- Blocklist content is **cached for 10 minutes** to improve performance
+- Use the `-f` flag to force a fresh download: `./crowdsec-efficiency-tester.sh /path/to/log/file.log -f`
+- Cache files: `.cache` (metadata) and `latestBlocklistContent.ips` (IP list)
 
 ### Log files that you can use
 > ℹ️ Script currently supports logs formats where the **IP address** is the **first element** in the log line.<br>

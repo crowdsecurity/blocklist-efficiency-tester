@@ -1,1 +1,6 @@
 .vscode
+.env
+.cache
+latestBlocklistContent.ips
+ips-from-logs.txt
+test-log.txt
