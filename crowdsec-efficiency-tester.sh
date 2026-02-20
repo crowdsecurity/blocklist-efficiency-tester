@@ -21,10 +21,13 @@ echo "
 
 show_end() {
   echo "
-Typical efficiency observed for the CrowdSec Intelligence Blocklist is 20 to 50%.
+Typical efficiency observed for the CrowdSec Intelligence Blocklist is 10 to 50%.
 If you have less than 10% efficiency, you may want to check the following:
 * The IPs in your logs are from ingress on an exposed service (website, api, ssh, etc.)
 * The IPs in your logs are not from a CDN but properly x-forwarded-for
+* The IPs are from your full ingress, not pre filtered. 
+  * In which case the displayed %age would represent the "blind spot" of your protection.
+
 
 If you want to check what CrowdSec knows about an attacker IP visit https://app.crowdsec.net/cti/
 
@@ -34,7 +37,7 @@ If you have any questions about our blocklists API, please visit https://doc.cro
 
 # Max lines to process from the log file (here for performance reasons - Change it at your convenience)
 MAX_LINES=100000
-TOP_ATTACKERS_DISPLAY=10
+TOP_ATTACKERS_DISPLAY="${TOP_ATTACKERS_DISPLAY:-10}"
 
 # Load .env file early if it exists (to check for BLOCKLIST_URL)
 if [ -f ".env" ]; then
@@ -183,7 +186,7 @@ done < "$PARSED_IPS_FILE"
 
 if [ -n "$CLEAR_PARSED_IPS_FILE" ]; then
   echo "Cleaning up temporary parsed IPs file..."
-  # rm "$PARSED_IPS_FILE"
+  rm "$PARSED_IPS_FILE"
 fi
 echo " ✅"
 
